@@ -1,3 +1,4 @@
+import { JwtService } from './../jwt/jwt.service';
 import { LoginAccountInput } from './dtos/login.dto';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { User } from './entities/user.entity';
@@ -11,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
-    private readonly config: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createAccount({
@@ -58,11 +59,7 @@ export class UserService {
         };
       }
 
-      const token = jwt.sign(
-        { id: (await foundUser).id },
-        this.config.get('TOKEN_SECRET'),
-      );
-
+      const token = this.jwtService.sign({ id: (await foundUser).id });
       return {
         ok: true,
         token,
@@ -73,5 +70,9 @@ export class UserService {
         error,
       };
     }
+  }
+
+  async findUserById(id: number): Promise<User> {
+    return this.users.findOne({ where: { id } });
   }
 }
