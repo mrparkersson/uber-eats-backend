@@ -6,9 +6,7 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import * as jwt from 'jsonwebtoken';
-import { ConfigService } from '@nestjs/config';
-import { EditProfileOutput, EditProfileInput } from './dtos/edit-profile.dto';
+import { EditProfileInput } from './dtos/edit-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -111,7 +109,9 @@ export class UserService {
       });
       if (verification) {
         verification.user.verfified = true;
-        this.users.save(verification.user);
+        await this.users.save(verification.user);
+        await this.verifications.delete(verification.id);
+
         return true;
       }
       throw new Error();

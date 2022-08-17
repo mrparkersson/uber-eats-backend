@@ -1,8 +1,6 @@
 import { Verification } from './common/entities/verification.entity';
 import { JwtMiddleware } from './jwt/jwt-middleware';
 import { User } from './users/entities/user.entity';
-
-import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { ApolloDriver } from '@nestjs/apollo';
 import {
   MiddlewareConsumer,
@@ -16,9 +14,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { UsersModule } from './users/users.module';
-import { CommonModule } from './common/common.module';
 import { JwtModule } from './jwt/jwt.module';
-import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -34,6 +31,9 @@ import { AuthModule } from './auth/auth.module';
         DB_PASSWORD: Joi.string().required(),
         DB_DATABASE: Joi.string().required(),
         TOKEN_SECRET: Joi.string().required(),
+        MAILGUN_API_KEY: Joi.string().required(),
+        MAILGUN_DOMAIN_NAME: Joi.string().required(),
+        MAILGUN_FROM_EMAIL: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -57,6 +57,11 @@ import { AuthModule } from './auth/auth.module';
     RestaurantsModule,
     JwtModule.forRoot({
       privateKey: process.env.TOKEN_SECRET,
+    }),
+    MailModule.forRoot({
+      apiKey: process.env.MAILGUN_API_KEY,
+      domain: process.env.MAILGUN_DOMAIN_NAME,
+      fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
     UsersModule,
   ],
