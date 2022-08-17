@@ -1,4 +1,4 @@
-import { Entity, Column, BeforeInsert } from 'typeorm';
+import { Entity, Column, BeforeInsert, BeforeUpdate } from 'typeorm';
 import {
   Field,
   InputType,
@@ -29,7 +29,7 @@ export class User extends CoreEntity {
   email: string;
 
   @Field(() => String)
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Field(() => UserRole)
@@ -37,13 +37,19 @@ export class User extends CoreEntity {
   @IsEnum(UserRole)
   role: UserRole;
 
+  @Column({ default: false })
+  @Field(() => Boolean)
+  verfified: boolean;
+
   @BeforeInsert()
+  @BeforeUpdate()
   async hashPassword(): Promise<void> {
-    try {
-      this.password = await bcrypt.hash(this.password, 10);
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException();
+    if (this.password) {
+      try {
+        this.password = await bcrypt.hash(this.password, 10);
+      } catch (error) {
+        throw new InternalServerErrorException();
+      }
     }
   }
 

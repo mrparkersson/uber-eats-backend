@@ -1,3 +1,4 @@
+import { Verification } from './common/entities/verification.entity';
 import { JwtMiddleware } from './jwt/jwt-middleware';
 import { User } from './users/entities/user.entity';
 
@@ -44,7 +45,7 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: /*process.env.NODE_ENV !== 'prod'*/ false,
-      entities: [User],
+      entities: [User, Verification],
     }),
     GraphQLModule.forRoot({
       driver: ApolloDriver,

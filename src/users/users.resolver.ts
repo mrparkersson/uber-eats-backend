@@ -1,3 +1,6 @@
+import { VerifyEmailOutput, VerifyEmailInput } from './dtos/verify-email.dto';
+import { EditProfileOutput, EditProfileInput } from './dtos/edit-profile.dto';
+import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
 import { AuthGuard } from './../auth/auth.guard';
 import { LoginOutput, LoginAccountInput } from './dtos/login.dto';
 import { UserService } from './users.service';
@@ -13,11 +16,6 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
-
-  @Query(() => Boolean)
-  hi() {
-    return true;
-  }
 
   @Mutation(() => CreateAccountOutput)
   async createAccount(
@@ -62,5 +60,62 @@ export class UserResolver {
   @UseGuards(AuthGuard)
   me(@AuthUser() loggedInUser: User) {
     return loggedInUser;
+  }
+
+  @UseGuards(AuthGuard)
+  @Query(() => UserProfileOutput)
+  async userProfile(
+    @Args() userProfileInput: UserProfileInput,
+  ): Promise<UserProfileOutput> {
+    try {
+      const user = await this.userService.findUserById(userProfileInput.userId);
+      if (!user) {
+        throw Error();
+      }
+      return {
+        ok: true,
+        user,
+      };
+    } catch (error) {
+      return {
+        error: 'User Not Found',
+        ok: false,
+      };
+    }
+  }
+
+  @Mutation(() => EditProfileOutput)
+  async editProfile(
+    @AuthUser() loggedInUser: User,
+    @Args('input') editProfileInput: EditProfileInput,
+  ): Promise<EditProfileOutput> {
+    try {
+      await this.userService.editProfile(loggedInUser.id, editProfileInput);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: 'User Not Found',
+      };
+    }
+  }
+
+  @Mutation(() => VerifyEmailOutput)
+  async veifyEmail(
+    @Args('input') verifyEmailInput: VerifyEmailInput,
+  ): Promise<VerifyEmailOutput> {
+    try {
+      await this.userService.verifyEmail(verifyEmailInput.code);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
   }
 }
