@@ -1,6 +1,6 @@
 import * as nodemailer from 'nodemailer';
 import * as nodemailMailgun from 'nodemailer-mailgun-transport';
-import { MailModuleOptions, EmailVar } from './mail.interfaces';
+import { MailModuleOptions } from './mail.interfaces';
 import { Inject, Injectable } from '@nestjs/common';
 import { CONFIG_OPTIONS } from 'src/common/common.constants';
 
