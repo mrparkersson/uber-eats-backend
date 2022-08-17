@@ -1,6 +1,6 @@
 import * as nodemailer from 'nodemailer';
 import * as nodemailMailgun from 'nodemailer-mailgun-transport';
-import { MailModuleOptions } from './mail.interfaces';
+import { MailModuleOptions, EmailVar } from './mail.interfaces';
 import { Inject, Injectable } from '@nestjs/common';
 import { CONFIG_OPTIONS } from 'src/common/common.constants';
 
@@ -8,11 +8,14 @@ import { CONFIG_OPTIONS } from 'src/common/common.constants';
 export class MailService {
   constructor(
     @Inject(CONFIG_OPTIONS) private readonly options: MailModuleOptions,
-  ) {
-    this.sendEmail('Please confirm your account', 'verify-email');
-  }
+  ) {}
 
-  private async sendEmail(subject: string, template: string) {
+  private async sendEmail(
+    subject: string,
+    template: string,
+    code: string,
+    username: string,
+  ) {
     const auth = {
       auth: {
         api_key: `${this.options.apiKey}`,
@@ -28,8 +31,8 @@ export class MailService {
         to: 'jason44853@gmail.com', // An array if you have multiple recipients.
         subject,
         template,
-        'v:code': 'asdfs',
-        'v:username': 'parker',
+        'v:code': code,
+        'v:username': username,
       },
       (err, info) => {
         if (err) {
@@ -39,5 +42,9 @@ export class MailService {
         }
       },
     );
+  }
+
+  sendVerificationEmail(email: string, code: string) {
+    this.sendEmail('Verify your email', 'verify-email', code, email);
   }
 }
