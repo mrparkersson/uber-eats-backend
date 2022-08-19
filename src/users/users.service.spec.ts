@@ -123,9 +123,10 @@ describe('UserService', () => {
       };
 
       userRepository.findOne.mockResolvedValue(mockedUser);
-      await service.login(loginArgs);
+      const result = await service.login(loginArgs);
       expect(jwtService.sign).toHaveBeenCalledTimes(1);
       expect(jwtService.sign).toHaveBeenCalledWith({ id: 1 });
+      expect(result).toEqual({ ok: true, token: 'signed token' });
     });
   });
 

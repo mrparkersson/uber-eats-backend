@@ -1,3 +1,6 @@
+import { AuthModule } from './auth/auth.module';
+import { Category } from './restaurants/entities/category.entity';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { Verification } from './common/entities/verification.entity';
 import { JwtMiddleware } from './jwt/jwt-middleware';
 import { User } from './users/entities/user.entity';
@@ -45,7 +48,7 @@ import { MailModule } from './mail/mail.module';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: /*process.env.NODE_ENV !== 'prod'*/ false,
-      entities: [User, Verification],
+      entities: [User, Verification, Restaurant, Category],
     }),
     GraphQLModule.forRoot({
       driver: ApolloDriver,
@@ -63,7 +66,9 @@ import { MailModule } from './mail/mail.module';
       domain: process.env.MAILGUN_DOMAIN_NAME,
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
+    AuthModule,
     UsersModule,
+    RestaurantsModule,
   ],
 })
 export class AppModule implements NestModule {
