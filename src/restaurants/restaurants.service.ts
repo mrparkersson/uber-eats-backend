@@ -1,3 +1,5 @@
+import { RestaurantOutput, RestaurantsInput } from './dtos/restaurants.dto';
+import { CategoryInput, CategoryOutPut } from './dtos/category.dto';
 import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
@@ -155,5 +157,60 @@ export class RestaurantService {
 
   async countRestaurants(category: Category) {
     return await this.restaurants.count({ category });
+  }
+
+  async findCategoryBySlug({
+    slug,
+    page,
+  }: CategoryInput): Promise<CategoryOutPut> {
+    try {
+      const category = await this.categories.findOne({ slug });
+
+      if (!category) {
+        return {
+          ok: false,
+          error: 'Category not found',
+        };
+      }
+      const restaurants = await this.restaurants.find({
+        where: { category },
+        take: 25,
+        skip: (page - 1) * 25,
+      });
+
+      category.restaurants = restaurants;
+      const totalResults = await this.countRestaurants(category);
+      return {
+        ok: true,
+        category,
+        totalPages: Math.ceil(totalResults / 25),
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: `Couldn't find a category with the given slug`,
+      };
+    }
+  }
+
+  async getAllRestaurants({
+    page,
+  }: RestaurantsInput): Promise<RestaurantOutput> {
+    try {
+      const [restaurants, totalResults] = await this.restaurants.findAndCount({
+        skip: (page - 1) * 25,
+        take: 25,
+      });
+      return {
+        ok: true,
+        restaurants,
+        totalPages: Math.ceil(totalResults / 25),
+        totalResultsFound: totalResults,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+      };
+    }
   }
 }
