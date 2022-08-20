@@ -1,3 +1,4 @@
+import { Dish } from './restaurants/entities/dish.entity';
 import { AuthModule } from './auth/auth.module';
 import { Category } from './restaurants/entities/category.entity';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
@@ -19,6 +20,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 import { UsersModule } from './users/users.module';
 import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -48,7 +50,7 @@ import { MailModule } from './mail/mail.module';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: /*process.env.NODE_ENV !== 'prod'*/ false,
-      entities: [User, Verification, Restaurant, Category],
+      entities: [User, Verification, Restaurant, Category, Dish],
     }),
     GraphQLModule.forRoot({
       driver: ApolloDriver,
@@ -69,6 +71,7 @@ import { MailModule } from './mail/mail.module';
     AuthModule,
     UsersModule,
     RestaurantsModule,
+    OrdersModule,
   ],
 })
 export class AppModule implements NestModule {

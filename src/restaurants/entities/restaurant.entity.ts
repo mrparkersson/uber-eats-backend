@@ -1,7 +1,8 @@
+import { Dish } from './dish.entity';
 import { Category } from './category.entity';
 import { CoreEntity } from './../../common/entities/core.entity';
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm';
+import { Entity, Column, ManyToOne, RelationId, OneToMany } from 'typeorm';
 import { Length, IsString } from 'class-validator';
 import { User } from 'src/users/entities/user.entity';
 
@@ -38,4 +39,8 @@ export class Restaurant extends CoreEntity {
 
   @RelationId((restaurant: Restaurant) => restaurant.owner)
   ownerId: number;
+
+  @Field(() => [Dish])
+  @OneToMany(() => Dish, (dish) => dish.restaurant)
+  menu: Dish[];
 }
