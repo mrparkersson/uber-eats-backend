@@ -9,7 +9,7 @@ import { Field, InputType, ObjectType } from '@nestjs/graphql';
 export class RestaurantsInput extends PaginationInput {}
 
 @ObjectType()
-export class RestaurantOutput extends PaginationOutput {
+export class RestaurantsOutput extends PaginationOutput {
   @Field(() => [Restaurant], { nullable: true })
   restaurants?: Restaurant[];
 }

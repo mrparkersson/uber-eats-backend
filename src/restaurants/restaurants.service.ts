@@ -1,4 +1,9 @@
-import { RestaurantOutput, RestaurantsInput } from './dtos/restaurants.dto';
+import {
+  SearchRestaurantInput,
+  SearchRestaurantOutput,
+} from './dtos/search-restaurant.dto';
+import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
+import { RestaurantsOutput, RestaurantsInput } from './dtos/restaurants.dto';
 import { CategoryInput, CategoryOutPut } from './dtos/category.dto';
 import {
   DeleteRestaurantInput,
@@ -18,7 +23,7 @@ import {
 import { Restaurant } from './entities/restaurant.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Raw, Repository } from 'typeorm';
 import { AllCategoriesOutput } from './dtos/all-categories.dto';
 
 @Injectable()
@@ -195,7 +200,7 @@ export class RestaurantService {
 
   async getAllRestaurants({
     page,
-  }: RestaurantsInput): Promise<RestaurantOutput> {
+  }: RestaurantsInput): Promise<RestaurantsOutput> {
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
         skip: (page - 1) * 25,
@@ -210,6 +215,55 @@ export class RestaurantService {
     } catch (error) {
       return {
         ok: false,
+      };
+    }
+  }
+
+  async getRestaurantById({
+    restaurantId,
+  }: RestaurantInput): Promise<RestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(restaurantId);
+
+      if (!restaurant) {
+        return {
+          ok: false,
+          error: `Couldn't delete Restaurant with the id provided`,
+        };
+      }
+      return {
+        ok: true,
+        restaurant,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  async searchRestaurantByName({
+    search,
+    page,
+  }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
+    try {
+      const [restaurants, totalResultsFound] =
+        await this.restaurants.findAndCount({
+          where: { name: Raw((name) => `${name} ILIKE '%${search}%'`) },
+          skip: (page - 1) * 25,
+          take: 25,
+        });
+      return {
+        ok: true,
+        restaurants,
+        totalResultsFound,
+        totalPages: Math.ceil(totalResultsFound / 25),
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
       };
     }
   }

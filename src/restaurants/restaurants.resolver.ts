@@ -1,4 +1,9 @@
-import { RestaurantsInput, RestaurantOutput } from './dtos/restaurants.dto';
+import {
+  SearchRestaurantOutput,
+  SearchRestaurantInput,
+} from './dtos/search-restaurant.dto';
+import { RestaurantOutput, RestaurantInput } from './dtos/restaurant.dto';
+import { RestaurantsInput, RestaurantsOutput } from './dtos/restaurants.dto';
 import { CategoryInput, CategoryOutPut } from './dtos/category.dto';
 import { AllCategoriesOutput } from './dtos/all-categories.dto';
 import { Category } from './entities/category.entity';
@@ -68,11 +73,25 @@ export class RestaurantResolver {
     );
   }
 
-  @Query(() => RestaurantOutput)
+  @Query(() => RestaurantsOutput)
   getAllRestaurants(
-    @Args('input') restaurantInput: RestaurantsInput,
+    @Args('input') restaurantsInput: RestaurantsInput,
+  ): Promise<RestaurantsOutput> {
+    return this.restaurantService.getAllRestaurants(restaurantsInput);
+  }
+
+  @Query(() => RestaurantOutput)
+  getRestaurantById(
+    @Args('input') restaurantId: RestaurantInput,
   ): Promise<RestaurantOutput> {
-    return this.restaurantService.getAllRestaurants(restaurantInput);
+    return this.restaurantService.getRestaurantById(restaurantId);
+  }
+
+  @Query(() => SearchRestaurantOutput)
+  searchRestaurantByName(
+    @Args('input') searchRestaurantInput: SearchRestaurantInput,
+  ): Promise<SearchRestaurantOutput> {
+    return this.restaurantService.searchRestaurantByName(searchRestaurantInput);
   }
 }
 
