@@ -1,3 +1,4 @@
+import { OrderItem } from './orders/entities/order-item.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Dish } from './restaurants/entities/dish.entity';
 import { AuthModule } from './auth/auth.module';
@@ -51,7 +52,15 @@ import { OrdersModule } from './orders/orders.module';
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: /*process.env.NODE_ENV !== 'prod'*/ false,
-      entities: [User, Verification, Restaurant, Category, Dish, Order],
+      entities: [
+        User,
+        Verification,
+        Restaurant,
+        Category,
+        Dish,
+        Order,
+        OrderItem,
+      ],
     }),
     GraphQLModule.forRoot({
       driver: ApolloDriver,
