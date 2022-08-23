@@ -1,3 +1,4 @@
+import { CommonModule } from './common/common.module';
 import { OrderItem } from './orders/entities/order-item.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Dish } from './restaurants/entities/dish.entity';
@@ -87,6 +88,7 @@ import { OrdersModule } from './orders/orders.module';
     UsersModule,
     RestaurantsModule,
     OrdersModule,
+    CommonModule,
   ],
 })
 export class AppModule {}

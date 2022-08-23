@@ -1,3 +1,9 @@
+import { AcceptOrderInput, AcceptOrderOutput } from './dto/accept-order.dto';
+import {
+  NEW_PENDING_ORDER,
+  NEW_COOKED_ORDER,
+  NEW_ORDER_UPDATE,
+} from './../common/common.constants';
 import { EditOrderInput, EditOrderOutput } from './dto/can-edit.dto';
 import { GetOrderInput, GetOrderOutput } from './dto/get-order.dto';
 import { Dish } from './../restaurants/entities/dish.entity';
@@ -5,11 +11,13 @@ import { OrderItem } from './entities/order-item.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { CreateOrderInput, CreateOrderOutput } from './dto/create-order.dto';
 import { Order, OrderStatus } from 'src/orders/entities/order.entity';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { GetOrdersOutput, GetOrdersInput } from './dto/get-orders.dto';
+import { PubSub } from 'graphql-subscriptions';
+import { PUB_SUB } from 'src/common/common.constants';
 
 @Injectable()
 export class OrderService {
@@ -20,6 +28,7 @@ export class OrderService {
     @InjectRepository(OrderItem)
     private readonly oderItems: Repository<OrderItem>,
     @InjectRepository(Dish) private readonly dishes: Repository<Dish>,
+    @Inject(PUB_SUB) private readonly pubSub: PubSub,
   ) {}
 
   async createOrder(
@@ -77,7 +86,7 @@ export class OrderService {
         orderItems.push(orderItem);
       }
       //final stage of creating the Order
-      await this.orders.save(
+      const order = await this.orders.save(
         this.orders.create({
           customer,
           restaurant,
@@ -85,6 +94,10 @@ export class OrderService {
           items: orderItems,
         }),
       );
+      await this.pubSub.publish(NEW_PENDING_ORDER, {
+        pendingOrders: order,
+        ownerId: restaurant.ownerId,
+      });
       return {
         ok: true,
       };
@@ -141,6 +154,21 @@ export class OrderService {
     }
   }
 
+  canSeeOrder(user: User, order: Order): boolean {
+    let canSee = true;
+    if (user.role === UserRole.Client && order.customerId !== user.id) {
+      canSee = false;
+    }
+    if (user.role === UserRole.Delivery && order.driverId !== user.id) {
+      canSee = false;
+    }
+    if (user.role === UserRole.Owner && order.restaurant.ownerId !== user.id) {
+      canSee = false;
+    }
+
+    return canSee;
+  }
+
   async getOrder(
     user: User,
     { id: orderId }: GetOrderInput,
@@ -153,6 +181,13 @@ export class OrderService {
         return {
           ok: false,
           error: 'Order not found',
+        };
+      }
+
+      if (!this.canSeeOrder(user, order)) {
+        return {
+          ok: false,
+          error: 'You cant see that',
         };
       }
 
@@ -201,13 +236,20 @@ export class OrderService {
         };
       }
 
+      if (!this.canSeeOrder(user, order)) {
+        return {
+          ok: false,
+          error: 'You cant see that',
+        };
+      }
+
       let canEdit = true;
       if (user.role === UserRole.Client) {
         canEdit = false;
       }
       if (user.role === UserRole.Delivery) {
         if (
-          status === OrderStatus.PickedUp ||
+          status !== OrderStatus.PickedUp &&
           status !== OrderStatus.Delivered
         ) {
           canEdit = false;
@@ -220,6 +262,55 @@ export class OrderService {
         };
       }
       await this.orders.save([{ id: orderId, status }]);
+      if (user.role === UserRole.Owner) {
+        if (status === OrderStatus.Cooked) {
+          await this.pubSub.publish(NEW_COOKED_ORDER, {
+            cookedOrders: { ...order, status },
+          });
+        }
+      }
+
+      await this.pubSub.publish(NEW_ORDER_UPDATE, {
+        orderUpdates: { ...order, status },
+      });
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  async acceptOrder(
+    driver: User,
+    { id }: AcceptOrderInput,
+  ): Promise<AcceptOrderOutput> {
+    try {
+      const order = await this.orders.findOne(id);
+      if (!order) {
+        return {
+          ok: false,
+          error: 'Order not found',
+        };
+      }
+      if (order.driver) {
+        return {
+          ok: false,
+          error: 'This order already has a driver',
+        };
+      }
+      await this.orders.save({
+        id,
+        driver,
+      });
+
+      await this.pubSub.publish(NEW_ORDER_UPDATE, {
+        orderUpdates: { ...order, driver },
+      });
 
       return {
         ok: true,
