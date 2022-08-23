@@ -19,6 +19,7 @@ import {
   RelationId,
 } from 'typeorm';
 import { IsEnum, IsNumber } from 'class-validator';
+import { string } from 'joi';
 
 export enum OrderStatus {
   Pending = 'Pending',

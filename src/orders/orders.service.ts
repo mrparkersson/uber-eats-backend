@@ -1,9 +1,10 @@
+import { EditOrderInput, EditOrderOutput } from './dto/can-edit.dto';
 import { GetOrderInput, GetOrderOutput } from './dto/get-order.dto';
 import { Dish } from './../restaurants/entities/dish.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { CreateOrderInput, CreateOrderOutput } from './dto/create-order.dto';
-import { Order } from 'src/orders/entities/order.entity';
+import { Order, OrderStatus } from 'src/orders/entities/order.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -178,6 +179,50 @@ export class OrderService {
       return {
         ok: true,
         order,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  async editOrder(
+    user: User,
+    { id: orderId, status }: EditOrderInput,
+  ): Promise<EditOrderOutput> {
+    try {
+      const order = await this.orders.findOne(orderId);
+      if (!order) {
+        return {
+          ok: false,
+          error: 'Error not found',
+        };
+      }
+
+      let canEdit = true;
+      if (user.role === UserRole.Client) {
+        canEdit = false;
+      }
+      if (user.role === UserRole.Delivery) {
+        if (
+          status === OrderStatus.PickedUp ||
+          status !== OrderStatus.Delivered
+        ) {
+          canEdit = false;
+        }
+      }
+      if (!canEdit) {
+        return {
+          ok: false,
+          error: 'You can not do that',
+        };
+      }
+      await this.orders.save([{ id: orderId, status }]);
+
+      return {
+        ok: true,
       };
     } catch (error) {
       return {
