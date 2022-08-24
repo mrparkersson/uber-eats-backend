@@ -26,6 +26,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { PaymentsModule } from './payments/payments.module';
         };
       },
     }),
+    ScheduleModule.forRoot(),
     RestaurantsModule,
     JwtModule.forRoot({
       privateKey: process.env.TOKEN_SECRET,

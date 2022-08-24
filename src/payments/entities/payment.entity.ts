@@ -9,9 +9,9 @@ import { Order } from 'src/orders/entities/order.entity';
 @ObjectType()
 @Entity()
 export class Payment extends CoreEntity {
-  @Field(() => Number)
+  @Field(() => String)
   @Column()
-  transactionId: number;
+  transactionId: string;
 
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.payments, {
