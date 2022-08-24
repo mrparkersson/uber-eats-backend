@@ -1,3 +1,4 @@
+import { Payment } from './../../payments/entities/payment.entity';
 import { Entity, Column, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
 import {
   Field,
@@ -52,6 +53,10 @@ export class User extends CoreEntity {
   @Field(() => [Order])
   @OneToMany(() => Order, (order) => order.customer)
   orders: Order[];
+
+  @Field(() => [Payment])
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
 
   @Field(() => [Order])
   @OneToMany(() => Order, (order) => order.driver)

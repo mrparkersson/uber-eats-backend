@@ -1,3 +1,4 @@
+import { Payment } from './payments/entities/payment.entity';
 import { CommonModule } from './common/common.module';
 import { OrderItem } from './orders/entities/order-item.entity';
 import { Order } from 'src/orders/entities/order.entity';
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
 import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
 import { OrdersModule } from './orders/orders.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -61,6 +63,7 @@ import { OrdersModule } from './orders/orders.module';
         Dish,
         Order,
         OrderItem,
+        Payment,
       ],
     }),
     GraphQLModule.forRoot({
@@ -89,6 +92,7 @@ import { OrdersModule } from './orders/orders.module';
     RestaurantsModule,
     OrdersModule,
     CommonModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}
