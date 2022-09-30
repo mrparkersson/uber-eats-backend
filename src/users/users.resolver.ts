@@ -105,7 +105,7 @@ export class UserResolver {
   }
 
   @Mutation(() => VerifyEmailOutput)
-  async veifyEmail(
+  async verifyEmail(
     @Args('input') verifyEmailInput: VerifyEmailInput,
   ): Promise<VerifyEmailOutput> {
     try {

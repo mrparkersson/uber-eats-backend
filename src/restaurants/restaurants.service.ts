@@ -188,8 +188,8 @@ export class RestaurantService {
       }
       const restaurants = await this.restaurants.find({
         where: { category },
-        take: 25,
-        skip: (page - 1) * 25,
+        take: 3,
+        skip: (page - 1) * 3,
         order: {
           isPromoted: 'DESC',
         },
@@ -200,7 +200,7 @@ export class RestaurantService {
       return {
         ok: true,
         category,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 3),
       };
     } catch (error) {
       return {
@@ -215,8 +215,8 @@ export class RestaurantService {
   }: RestaurantsInput): Promise<RestaurantsOutput> {
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * 3,
+        take: 3,
         order: {
           isPromoted: 'DESC',
         },
@@ -224,7 +224,7 @@ export class RestaurantService {
       return {
         ok: true,
         restaurants,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 3),
         totalResultsFound: totalResults,
       };
     } catch (error) {
@@ -268,14 +268,14 @@ export class RestaurantService {
       const [restaurants, totalResultsFound] =
         await this.restaurants.findAndCount({
           where: { name: Raw((name) => `${name} ILIKE '%${search}%'`) },
-          skip: (page - 1) * 25,
-          take: 25,
+          skip: (page - 1) * 3,
+          take: 3,
         });
       return {
         ok: true,
         restaurants,
         totalResultsFound,
-        totalPages: Math.ceil(totalResultsFound / 25),
+        totalPages: Math.ceil(totalResultsFound / 3),
       };
     } catch (error) {
       return {

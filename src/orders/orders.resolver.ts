@@ -26,6 +26,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { Inject } from '@nestjs/common';
 import { Connection } from 'typeorm';
+import { number } from 'joi';
 
 @Resolver()
 export class OrderResolver {

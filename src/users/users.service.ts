@@ -56,7 +56,7 @@ export class UserService {
     //make a jwt and give it to the User
 
     try {
-      const foundUser = this.users.findOne({
+      const foundUser = await this.users.findOne({
         where: { email },
         select: ['id', 'password'],
       });
@@ -67,7 +67,7 @@ export class UserService {
         };
       }
 
-      const correctPassword = await (await foundUser).checkPassword(password);
+      const correctPassword = await foundUser.checkPassword(password);
       if (!correctPassword) {
         return {
           ok: false,
@@ -99,7 +99,7 @@ export class UserService {
     const user = await this.users.findOne({ where: { id: userId } });
     if (email) {
       user.email = email;
-      user.verfified = false;
+      user.verified = false;
       const verification = await this.verifications.save(
         this.verifications.create({ user }),
       );
@@ -119,7 +119,7 @@ export class UserService {
         relations: ['user'],
       });
       if (verification) {
-        verification.user.verfified = true;
+        verification.user.verified = true;
         await this.users.save(verification.user);
         await this.verifications.delete(verification.id);
 

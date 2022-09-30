@@ -1,4 +1,3 @@
-import { User } from 'src/users/entities/user.entity';
 import { AllowedRoles } from './role.decorator';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';

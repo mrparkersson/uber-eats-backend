@@ -27,12 +27,13 @@ export class Restaurant extends CoreEntity {
   @IsString()
   coverImage: string;
 
-  @Field(() => Category)
+  @Field(() => Category, { nullable: true })
   @ManyToOne(() => Category, (category) => category.restaurants, {
     nullable: true,
     onDelete: 'SET NULL',
+    eager: true,
   })
-  category: Category;
+  category?: Category;
 
   @Field(() => [Order])
   @OneToMany(() => Order, (order) => order.restaurant)
